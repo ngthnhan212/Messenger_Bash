@@ -1,1 +1,117 @@
+#!/bin/bash
+{
+	getsys=$(echo $SHELL)
+	if [ "$getsys" == "/data/data/com.termux/files/usr/bin/bash" ]
+	then
+		:
+	else
+		echo "Your linux environment does not match the system we require!"
+		exit
+	fi
+	require=("$1")
+	case $require in
+	start)
+		if [ -e "$PREFIX/system/status" ]
+		then
+			check=$(cat $PREFIX/system/status)
+			if [ "$check" == "Offline" ]
+			then
+				echo "
+Debian start ....
+"
+				echo "Online" > $PREFIX/system/status
+				exit
+			else
+					echo "
+Debian was previously enabled ....
+"
+					exit
+			fi
+		else
+			mkdir $PREFIX/system
+			echo "
+Debian start ....
+"
+			echo "Online" > $PREFIX/system/status
+			exit
+		fi
+	;;
+	stop)
+		if [ -e "$PREFIX/system/status" ]
+		then
+			getInfo=$(cat $PREFIX/system/status)
+			if [ "$getInfo" == "Online" ]
+			then
+				echo "
+Debian stop ....
+"
+				echo "Offline" > $PREFIX/system/status
+				exit
+			else
+				echo "
+Debian is not yet active so it cannot be stopped!
+"
+				exit
+			fi
+		else
+			echo "
+You have never turned on debian start!
+"
+			exit
+		fi
+	;;
+	help)
+		if [ -e "$PREFIX/system/status" ]
+		then
+			getInfo=$(cat $PREFIX/system/status)
+			if [ "$getInfo" == "Online" ]
+			then
+				echo "
+Commands that still work:
 
+	start)
+		Run debian
+
+	stop)
+		stop debian
+	running)
+		run server
+	help)
+		help
+"
+			else
+				echo "
+Debian has not been started yet
+"
+				exit
+			fi
+		else
+			echo "
+You have never turned on debian start!
+"
+			exit
+		fi
+	;;
+	running)
+		if [ -e "$PREFIX/system/status" ]
+		then
+			getInfo=$(cat $PREFIX/system/status)
+			if [ "$getInfo" == "Online" ]
+			then
+				clear
+				echo "Running ....."
+				bash Messenger/disk/running.sh
+			else
+				echo "Please "debian start" before running"
+				exit
+			fi
+		else
+			echo "Please "debian start" before running"
+			exit
+		fi
+	;;
+	*)
+		echo "Try "help""
+		exit
+	esac
+}
